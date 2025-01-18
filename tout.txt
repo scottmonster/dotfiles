@@ -1,0 +1,10 @@
+# tmplog "running $command "
+nohup "$command" "$@" > /dev/null 2>&1 &
+ry
+echo "runbg could not find command: $comman
+cea
+el
+ens
+
+  
+

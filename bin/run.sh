@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # the purpose of this script is ONLY to get us to the point where lua is installed
 
+# uncommit this line if you would like to prefer apt over nala. this only has an effect if apt and nala are the only package managers installed
+# PREFER_APT=1
+
 PACKAGE_MANAGERS=(apt nala dnf pacman zypper emerge apk brew port choco winget scoop)
 
 install_lua() {
@@ -137,10 +140,34 @@ if [ "${#found_managers[@]}" -lt 1 ]; then
   exit 1
 fi
 
+if [[ " ${found_managers[*]} " == *" apt "* && " ${found_managers[*]} " == *" nala "* && "${#found_managers[@]}" -eq 2 ]]; then
+    echo "checking for PREFER_APT"
+    found_managers=()
+    if [ "${PREFER_APT:-0}" -eq 1 ]; then
+      found_managers=("apt")
+    else
+      found_managers=("nala")
+    fi
+    echo "set to ${found_managers[*]}"
+fi
+
 if [ "${#found_managers[@]}" -gt 1 ]; then
+
+  # Save current terminal settings
+  saved_settings=$(stty -g 2>/dev/null || true)
+  
+  # Attempt to make terminal interactive
+  exec < /dev/tty 2>/dev/null || true
+
   echo "Multiple package managers found: ${found_managers[*]}"
   echo "Please enter a number between 1 and $((${#found_managers[@]} + 1))"
   package_manager=$(select_package_manager "${found_managers[@]}")
+
+  # Restore original settings
+  if [ -n "$saved_settings" ]; then
+    stty "$saved_settings" 2>/dev/null || true
+  fi
+
   if [ -z "$package_manager" ]; then
     echo "No package manager selected. Exiting..."
     exit 1
@@ -169,6 +196,10 @@ if [ -z "$curl_cmd" ]; then
   exit 1
 fi
 echo "got a curl command at $curl_cmd"
+
+# we may need to change this for different environments... im not sure
+curl_args="-s"
+
 lua_script_url="https://raw.githubusercontent.com/scottmonster/dotfiles/refs/heads/master/bin/do_werk.lua"
-$curl_cmd "$lua_script_url" | $lua_cmd
+$curl_cmd $curl_args "$lua_script_url" | $lua_cmd
 

@@ -10,3 +10,8 @@ learn some lua and learn some ansible
 
 
 
+run with
+``` bash
+curl -s https://raw.githubusercontent.com/scottmonster/dotfiles/refs/heads/master/bin/run.sh | sudo bash
+
+```

@@ -32,36 +32,3 @@ print("Factorial of 5: " .. factorial(5))
 print("Is 7 prime? " .. tostring(is_prime(7)))
 print("Fibonacci sequence up to 10 terms:")
 fibonacci(10)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

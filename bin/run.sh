@@ -5,7 +5,6 @@ PACKAGE_MANAGERS=(apt nala dnf pacman zypper emerge apk brew port choco winget s
 
 install_lua() {
   local package_manager
-  echo "attempting to install lua"
   if [ -n "$1" ]; then
     package_manager="$1"
   else
@@ -13,6 +12,7 @@ install_lua() {
     exit 1
   fi
 
+  echo "attempting to install lua with $package_manager"
   case "$package_manager" in
   apt)
     sudo DEBIAN_FRONTEND=noninteractive apt install -y lua5.1
@@ -56,7 +56,22 @@ install_lua() {
     ;;
   esac
 
-  # then we need to call the lua script
+  lua_cmd="$(command -v lua)"
+  if [ -z "$lua_cmd" ]; then
+    echo "unable to properly install lua"
+    exit 1
+  fi
+
+  # Debug the captured version
+  lua_version="$($lua_cmd -v 2>&1 | tr -d '\n')"
+  
+
+  if [[ "$lua_version" != *"5.1"* ]]; then
+      echo "Lua version is not 5.1"
+      echo "Found version: $lua_version"
+      exit 1
+  fi
+
 }
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -138,4 +153,22 @@ if [ -z "$package_manager" ] && [ "${#found_managers[@]}" -eq 1 ]; then
 fi
 
 
-install_lua "$package_manager"
+# this actually isn't right because we dont check lua version
+# im only concerned with new installs and lua won't be installed so I'm just rolling with it for now
+lua_cmd="$(command -v lua)"
+if [ -z "$lua_cmd" ]; then
+  install_lua "$package_manager"
+fi
+# ^^^ install_lua sets the lua_cmd variable or exits if it isn't there or wrong version
+echo "lua is installed"
+
+# https://raw.githubusercontent.com/scottmonster/dotfiles/refs/heads/master/bin/do_werk.lua
+curl_cmd="$(command -v curl)"
+if [ -z "$curl_cmd" ]; then
+  echo "nope"
+  exit 1
+fi
+echo "got a curl command at $curl_cmd"
+lua_script_url="https://raw.githubusercontent.com/scottmonster/dotfiles/refs/heads/master/bin/do_werk.lua"
+$curl_cmd "$lua_script_url" | $lua_cmd
+

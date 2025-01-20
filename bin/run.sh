@@ -140,16 +140,16 @@ if [ "${#found_managers[@]}" -lt 1 ]; then
   exit 1
 fi
 
-if [[ " ${found_managers[*]} " == *" apt "* && " ${found_managers[*]} " == *" nala "* && "${#found_managers[@]}" -eq 2 ]]; then
-    echo "checking for PREFER_APT"
-    found_managers=()
-    if [ "${PREFER_APT:-0}" -eq 1 ]; then
-      found_managers=("apt")
-    else
-      found_managers=("nala")
-    fi
-    echo "set to ${found_managers[*]}"
-fi
+# if [[ " ${found_managers[*]} " == *" apt "* && " ${found_managers[*]} " == *" nala "* && "${#found_managers[@]}" -eq 2 ]]; then
+#     echo "checking for PREFER_APT"
+#     found_managers=()
+#     if [ "${PREFER_APT:-0}" -eq 1 ]; then
+#       found_managers=("apt")
+#     else
+#       found_managers=("nala")
+#     fi
+#     echo "set to ${found_managers[*]}"
+# fi
 
 if [ "${#found_managers[@]}" -gt 1 ]; then
 

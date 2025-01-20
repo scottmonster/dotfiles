@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # the purpose of this script is ONLY to get us to the point where lua is installed
-
+exec <&-
 # uncommit this line if you would like to prefer apt over nala. this only has an effect if apt and nala are the only package managers installed
 # PREFER_APT=1
 

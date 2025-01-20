@@ -79,6 +79,7 @@ if ($agentService -and $agentService.Status -eq 'Running') {
 # TODO: add other services here
 
 # Remove-Item -Path $env:ChocolateyInstall -Recurse -Force -WhatIf
+# If you also intend to delete the Chocolatey directory, remove the -WhatIf switch from the Remove-Item call near the bottom:
 Remove-Item -Path $env:ChocolateyInstall -Recurse -Force 
 
 'ChocolateyInstall', 'ChocolateyLastPathUpdate' | ForEach-Object {
@@ -89,6 +90,8 @@ Remove-Item -Path $env:ChocolateyInstall -Recurse -Force
 
 $machineKey.Close()
 $userKey.Close()
+
+# Additionally, the below code will remove the environment variables pointing to the tools directory that was managed by Chocolatey. If you want to remove the actual directory from disk, remove the -WhatIf switch from the Remove-Item call below as well.
 
 if ($env:ChocolateyToolsLocation -and (Test-Path $env:ChocolateyToolsLocation)) {
     # Remove-Item -Path $env:ChocolateyToolsLocation -WhatIf -Recurse -Force

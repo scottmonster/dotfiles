@@ -1,7 +1,7 @@
 
 
 @REM This script should install choco, use choco to install lua
-
+@REM I also need to add some variables for lua version and the choco path
 
 echo 'This needs to be tested before it's used an because my environment is a dumpster fire the networks aren't working for my windows VMs'
 echo 'This is what we WOULD do...'

@@ -67,12 +67,11 @@ install_lua() {
 
   # Debug the captured version
   lua_version="$($lua_cmd -v 2>&1 | tr -d '\n')"
-  
 
   if [[ "$lua_version" != *"5.1"* ]]; then
-      echo "Lua version is not 5.1"
-      echo "Found version: $lua_version"
-      exit 1
+    echo "Lua version is not 5.1"
+    echo "Found version: $lua_version"
+    exit 1
   fi
 
 }
@@ -81,7 +80,6 @@ if [ "$(id -u)" -ne 0 ]; then
   echo "This script must be run as root. Please use sudo."
   exit 1
 fi
-
 
 # if we are on mac and homebrew isn't installed
 if [ "$(uname)" = "Darwin" ] && ! command -v brew >/dev/null 2>&1; then
@@ -128,6 +126,12 @@ ask_for_help() {
   echo "If you know what you are doing, feel free to make the changes"
 }
 
+# BEGIN WORK
+
+# STOP WORK
+
+# exit
+
 found_managers=()
 for pm in "${PACKAGE_MANAGERS[@]}"; do
   if command -v "$pm" >/dev/null 2>&1; then
@@ -152,20 +156,38 @@ fi
 # fi
 
 if [ "${#found_managers[@]}" -gt 1 ]; then
+  if ! tty -s; then
+    echo "No terminal access, defaulting to first package manager: ${found_managers[0]}"
+    package_manager=${found_managers[0]}
+  else
+    saved_settings=$(stty -g 2>/dev/null || true)
 
-  # Save current terminal settings
-  saved_settings=$(stty -g 2>/dev/null || true)
-  
-  # Attempt to make terminal interactive
-  exec < /dev/tty 2>/dev/null || true
+    echo "Multiple package managers found: ${found_managers[*]}"
+    select pm in "${found_managers[@]}" "Quit"; do
+      case $REPLY in
+      '' | *[!0-9]*)
+        echo "Please enter a number between 1 and $((${#found_managers[@]} + 1))"
+        continue
+        ;;
+      $((${#found_managers[@]} + 1)))
+        echo "Exiting..."
+        exit 0
+        ;;
+      *)
+        if [ "$REPLY" -le "${#found_managers[@]}" ]; then
+          package_manager=${found_managers[$REPLY - 1]}
+          break
+        else
+          echo "Invalid selection"
+          continue
+        fi
+        ;;
+      esac
+    done
 
-  echo "Multiple package managers found: ${found_managers[*]}"
-  echo "Please enter a number between 1 and $((${#found_managers[@]} + 1))"
-  package_manager=$(select_package_manager "${found_managers[@]}")
-
-  # Restore original settings
-  if [ -n "$saved_settings" ]; then
-    stty "$saved_settings" 2>/dev/null || true
+    if [ -n "$saved_settings" ]; then
+      stty "$saved_settings" 2>/dev/null || true
+    fi
   fi
 
   if [ -z "$package_manager" ]; then
@@ -174,11 +196,15 @@ if [ "${#found_managers[@]}" -gt 1 ]; then
   fi
 fi
 
+if [ -z "$package_manager" ]; then
+  echo "No package manager selected. Exiting..."
+  exit 1
+fi
+
 # just make sure we havent already set package manager somewhere else and verify we only found 1
 if [ -z "$package_manager" ] && [ "${#found_managers[@]}" -eq 1 ]; then
   package_manager=${found_managers[0]}
 fi
-
 
 # this actually isn't right because we dont check lua version
 # im only concerned with new installs and lua won't be installed so I'm just rolling with it for now
@@ -202,4 +228,3 @@ curl_args="-s"
 
 lua_script_url="https://raw.githubusercontent.com/scottmonster/dotfiles/refs/heads/master/bin/do_werk.lua"
 $curl_cmd $curl_args "$lua_script_url" | $lua_cmd
-

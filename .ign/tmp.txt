@@ -1,0 +1,22 @@
+curl -s -H "Cache-Control: no-cache" https://raw.githubusercontent.com/scottmonster/dotfiles/refs/heads/master/bin/run.sh | sudo bash
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
